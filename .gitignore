@@ -1,7 +1,8 @@
 # WebFitt data collection folder
 data/
 mergedmean.csv
-
+.vscode/
+.DS_Store
 ### Linux ###
 *~
 

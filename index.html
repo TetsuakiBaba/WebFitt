@@ -1,201 +1,227 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js" integrity="sha512-2r+xZ/Dm8+HI0I8dsj1Jlfchv4O3DGfWbqRalmSGtgdbVQrZyGRqHp9ek8GKk1x8w01JsmDZRrJZ4DzgXkAU+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.js" integrity="sha512-TU9AWtV5uUZPX8dbBAH8NQF1tSdigPRRT82vllAQ1Ke28puiqLA6ZVKxtUGlgrH6yWFnkKy+sE6luNEGH9ar0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js" integrity="sha512-dqw6X88iGgZlTsONxZK9ePmJEFrmHwpuMrsUChjAw1mRUhUITE5QU9pkcSox+ynfLhL15Sv2al5A0LVyDCmtUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <link rel="stylesheet" type="text/css" href="style.css">
-        <link rel="icon" href="assets/icon.png" type="image/x-icon">
-        <meta id="webfitt-meta" data-servdown="{{servdown}}" data-resultsview="{{resultsview}}"/>
-        <title>WebFitts | A Web-Based 2D Fitts' Law Test</title>
-    </head>
-    <body>
-        <script src="script.js"></script>
-        <div id="main_menu">
-            <div class="ui centered grid">
-                <div class="nine wide column">
-                    <div class="ui segment">
-                        <!-- LOGO -->
-                        <div class="ui container">
-                            <img id="form_logo" class="ui centered fluid image" src="assets/banner_alt_zoomed.png">
+
+<head>
+    <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"
+        integrity="sha512-2r+xZ/Dm8+HI0I8dsj1Jlfchv4O3DGfWbqRalmSGtgdbVQrZyGRqHp9ek8GKk1x8w01JsmDZRrJZ4DzgXkAU+g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.js"
+        integrity="sha512-TU9AWtV5uUZPX8dbBAH8NQF1tSdigPRRT82vllAQ1Ke28puiqLA6ZVKxtUGlgrH6yWFnkKy+sE6luNEGH9ar0A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+        integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"
+        integrity="sha512-Qlv6VSKh1gDKGoJbnyA5RMXYcvnpIqhO++MhIM2fStMcGT9i2T//tSwYFlcyoRRDcDZ+TYHpH8azBBCyhpSeqw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"
+        integrity="sha512-dqw6X88iGgZlTsONxZK9ePmJEFrmHwpuMrsUChjAw1mRUhUITE5QU9pkcSox+ynfLhL15Sv2al5A0LVyDCmtUw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+        integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="icon" href="assets/icon.png" type="image/x-icon">
+    <meta id="webfitt-meta" data-servdown="{{servdown}}" data-resultsview="{{resultsview}}" />
+    <title>WebFitts | A Web-Based 2D Fitts' Law Test</title>
+</head>
+
+<body>
+    <script src="script.js"></script>
+    <div id="main_menu">
+        <div class="ui centered grid">
+            <div class="nine wide column">
+                <div class="ui segment">
+                    <!-- LOGO -->
+                    <div class="ui container">
+                        <img id="form_logo" class="ui centered fluid image" src="assets/banner_alt_zoomed.png">
+                    </div>
+
+                    <!-- FORM -->
+                    <div class="ui form">
+
+                        <h4 class="ui horizontal divider header">
+                            <i class="user icon"></i>
+                            Demography Details
+                        </h4>
+
+                        <div class="three fields">
+                            <div class="field">
+                                <label>Participant Code</label>
+                                <input id="participant-code" placeholder="Participant Code" type="text" value="P0">
+                            </div>
+                            <div class="field">
+                                <label>Session Code</label>
+                                <input id="session-code" placeholder="Session Code" type="text" value="S0">
+                            </div>
+                            <div class="field">
+                                <label>Condition Code</label>
+                                <input id="condition-code" placeholder="Condition Code" type="text" value="C0">
+                            </div>
                         </div>
 
-                        <!-- FORM -->
-                        <div class="ui form">
-
-                            <h4 class="ui horizontal divider header">
-                                <i class="user icon"></i>
-                                Demography Details
-                            </h4>
-
-                            <div class="three fields">
-                                <div class="field">
-                                    <label>Participant Code</label>
-                                    <input id="participant-code" placeholder="Participant Code" type="text" value="P0">
-                                </div>
-                                <div class="field">
-                                    <label>Session Code</label>
-                                    <input id="session-code" placeholder="Session Code" type="text" value="S0">
-                                </div>
-                                <div class="field">
-                                    <label>Condition Code</label>
-                                    <input id="condition-code" placeholder="Condition Code" type="text" value="C0">
+                        <div class="inline fields">
+                            <label>Hand Dominance</label>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="hand-dominance" checked="checked" value="Dominant">
+                                    <label>Dominant Hand</label>
                                 </div>
                             </div>
-
-                            <div class="inline fields">
-                                <label>Hand Dominance</label>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="hand-dominance" checked="checked" value="Dominant">
-                                        <label>Dominant Hand</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="hand-dominance" value="Non-Dominant">
-                                        <label>Non-Dominant Hand</label>
-                                    </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="hand-dominance" value="Non-Dominant">
+                                    <label>Non-Dominant Hand</label>
                                 </div>
                             </div>
-
-                            <div class="inline fields">
-                                <label>Pointing Device</label>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="pointing-device" checked="checked" value="Mouse">
-                                        <label>Mouse</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="pointing-device" value="Touchpad">
-                                        <label>Touchpad</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="pointing-device" value="Joystick">
-                                        <label>Joystick</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="pointing-device" value="Other">
-                                        <label>Other</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="inline fields">
-                                <label>Device Experience</label>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="device-experience" value="Novice">
-                                        <label>Novice</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="device-experience" checked="checked" value="Intermediate">
-                                        <label>Intermediate</label>
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input type="radio" name="device-experience" value="Expert">
-                                        <label>Expert</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h4 class="ui horizontal divider header">
-                                <i class="cogs icon"></i>
-                                Test Parameters
-                            </h4>
-
-                            <div class="three fields">
-                                <div class="field" title="Supports multiple comma-separated values">
-                                    <label>Amplitude (A)</label>
-                                    <input id="amplitude" placeholder="Amplitude" type="text" value="400">
-                                </div>
-                                <div class="field" title="Supports multiple comma-separated values">
-                                    <label>Width (W)</label>
-                                    <input id="width" placeholder="Session Code" type="text" value="50">
-                                </div>
-                                <div class="field">
-                                    <label>Number of Targets (n)</label>
-                                    <select id="number-of-targets" class="ui dropdown">
-                                        <option value="3">3</option>
-                                        <option value="5">5</option>
-                                        <option value="7">7</option>
-                                        <option value="9">9</option>
-                                        <option value="11">11</option>
-                                        <option value="13">13</option>
-                                        <option value="15" selected="selected">15</option>
-                                        <option value="17">17</option>
-                                        <option value="19">19</option>
-                                        <option value="21">21</option>
-                                        <option value="23">23</option>
-                                        <option value="25">25</option>
-                                      </select>
-                                </div>
-                            </div>
-
-                            <h4 class="ui horizontal divider header servdown-policy">
-                                <i class="save icon"></i>
-                                Data Usage Policy
-                            </h4>
-
-                            <div class="inline field servdown-policy">
-                                <div class="ui checkbox">
-                                    <input id="policy" type="checkbox">
-                                    <label>I agree to share usage data with server for analytics</label>
-                                </div>
-                            </div>
-                            
-                            <div id="start-test-btn" class="ui fluid primary button">
-                                Begin
-                            </div>
-
                         </div>
+
+                        <div class="inline fields">
+                            <label>Pointing Device</label>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="pointing-device" checked="checked" value="Mouse">
+                                    <label>Mouse</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="pointing-device" value="Touchpad">
+                                    <label>Touchpad</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="pointing-device" value="Joystick">
+                                    <label>Joystick</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="pointing-device" value="Other">
+                                    <label>Other</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="inline fields">
+                            <label>Device Experience</label>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="device-experience" value="Novice">
+                                    <label>Novice</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="device-experience" checked="checked" value="Intermediate">
+                                    <label>Intermediate</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui radio checkbox">
+                                    <input type="radio" name="device-experience" value="Expert">
+                                    <label>Expert</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="ui horizontal divider header">
+                            <i class="cogs icon"></i>
+                            Test Parameters
+                        </h4>
+
+                        <div class="three fields">
+                            <div class="field" title="Supports multiple comma-separated values">
+                                <label>Amplitude (A)</label>
+                                <input id="amplitude" placeholder="Amplitude" type="text" value="400">
+                            </div>
+                            <div class="field" title="Supports multiple comma-separated values">
+                                <label>Width (W)</label>
+                                <input id="width" placeholder="Session Code" type="text" value="50">
+                            </div>
+                            <div class="field">
+                                <label>Number of Targets (n)</label>
+                                <select id="number-of-targets" class="ui dropdown">
+                                    <option value="3">3</option>
+                                    <option value="5">5</option>
+                                    <option value="7">7</option>
+                                    <option value="9">9</option>
+                                    <option value="11">11</option>
+                                    <option value="13">13</option>
+                                    <option value="15" selected="selected">15</option>
+                                    <option value="17">17</option>
+                                    <option value="19">19</option>
+                                    <option value="21">21</option>
+                                    <option value="23">23</option>
+                                    <option value="25">25</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Number of Trials (t)</label>
+                                <input id="number-of-trials" placeholder="Number of Trials" type="text" value="2">
+                            </div>
+                        </div>
+
+                        <h4 class="ui horizontal divider header servdown-policy">
+                            <i class="save icon"></i>
+                            Data Usage Policy
+                        </h4>
+
+                        <div class="inline field servdown-policy">
+                            <div class="ui checkbox">
+                                <input id="policy" type="checkbox">
+                                <label>I agree to share usage data with server for analytics</label>
+                            </div>
+                        </div>
+
+                        <div id="start-test-btn" class="ui fluid primary button">
+                            Begin
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div id="ui_elements">
-            <img class="ui_item" id="header_logo" src="assets/header_logo.png" alt="WebFitts Header Logo" />
-            <img class="ui_item" id="calibration_icon" src="assets/calibrate.png" alt="Calibrate Icon" title="Calibrate Display (C)" />
-            <img class="ui_item" id="volume_icon" src="assets/volume_mute_default.png" alt="Volume Icon" title="Toggle Sound (S)" />
-            <img class="ui_item" id="trail_icon" src="assets/trail_off_default.png" alt="Volume Icon" title="Toggle Trail (T)" />
-            <img class="ui_item" id="github_logo" src="assets/github_default.png" alt="GitHub Logo" title="Source Code" />
-            <div id="confirm_calibration_btn" class="ui primary button">
-                Set Calibration
+    <div id="ui_elements">
+        <img class="ui_item" id="header_logo" src="assets/header_logo.png" alt="WebFitts Header Logo" />
+        <img class="ui_item" id="calibration_icon" src="assets/calibrate.png" alt="Calibrate Icon"
+            title="Calibrate Display (C)" />
+        <img class="ui_item" id="volume_icon" src="assets/volume_mute_default.png" alt="Volume Icon"
+            title="Toggle Sound (S)" />
+        <img class="ui_item" id="trail_icon" src="assets/trail_off_default.png" alt="Volume Icon"
+            title="Toggle Trail (T)" />
+        <img class="ui_item" id="github_logo" src="assets/github_default.png" alt="GitHub Logo" title="Source Code" />
+        <div id="confirm_calibration_btn" class="ui primary button">
+            Set Calibration
+        </div>
+        <div id="calibration-modal" class="ui mini modal">
+            <div class="header">Cookie Preferences</div>
+            <div class="content">
+                <p>Display calibration is set!<br /><br />WebFitts uses cookies to save your display calibration
+                    settings so you don't need to set them the next time you use it. Would you like to accept cookie?
+                </p>
             </div>
-            <div id="calibration-modal" class="ui mini modal">
-                <div class="header">Cookie Preferences</div>
-                <div class="content">
-                    <p>Display calibration is set!<br/><br/>WebFitts uses cookies to save your display calibration settings so you don't need to set them the next time you use it. Would you like to accept cookie?</p>
-                </div>
-                <div class="actions">
-                    <button class="ui cancel button">No, Thanks</button>
-                    <button class="ui approve primary button">Yes, Accept Cookie</button>
-                </div>
-            </div>
-            <div id="calibrated-modal" class="ui mini modal">
-                <div class="content">
-                    <p>Your display calibration is set!</p>
-                </div>
-                <div class="actions">
-                    <button class="ui approve primary button">Return to Main Menu</button>
-                </div>
+            <div class="actions">
+                <button class="ui cancel button">No, Thanks</button>
+                <button class="ui approve primary button">Yes, Accept Cookie</button>
             </div>
         </div>
-    </body>
+        <div id="calibrated-modal" class="ui mini modal">
+            <div class="content">
+                <p>Your display calibration is set!</p>
+            </div>
+            <div class="actions">
+                <button class="ui approve primary button">Return to Main Menu</button>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>

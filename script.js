@@ -1,8 +1,13 @@
+/*******************************************************
+ * script.js
+ *******************************************************/
+
 class Task {
-    constructor(A, W, n) {
-        this.A = A;
-        this.W = W;
-        this.n = n;
+    constructor(A, W, n, t) {
+        this.A = A;     // 振幅(ピクセル)
+        this.W = W;     // ターゲット幅(ピクセル)
+        this.n = n;     // ターゲット数
+        this.t = t;     // 周回数(何周分クリックするか)
     }
 }
 
@@ -45,67 +50,79 @@ var overallMeanResult = [];
 var servdown = false;
 var resultsview = true;
 
-let clickDataHeader = ["Participant Code", "Session Code", "Condition Code", "Hand Dominance", "Pointing Device", "Device Experience", "Amplitude", "Width", "Number of Targets", "Task Index", "Click Number", "Completion Time (ms)", "Source X", "Source Y", "Target X", "Target Y", "Click X", "Click Y", "Source-Target Distance", "dx", "Incorrect"];
-let aggregateTaskResultHeader = ["Participant Code", "Session Code", "Condition Code", "Hand Dominance", "Pointing Device", "Device Experience", "Amplitude", "Width", "Number of Targets", "Task Index", "Mean Completion Time (ms)", "Error (%)", "SDx", "We", "IDe", "Ae", "Throughput (bps)"];
-let overallMeanResultHeader = ["Participant Code", "Session Code", "Condition Code", "Hand Dominance", "Pointing Device", "Device Experience", "Mean Completion Time (ms)", "Mean Click Error (%)", "Mean Throughput (bps)"];
+// それぞれのCSV出力用ヘッダー
+let clickDataHeader = [
+    "Participant Code", "Session Code", "Condition Code", "Hand Dominance", "Pointing Device", "Device Experience",
+    "Amplitude", "Width", "Number of Targets", "Task Index", "Click Number", "Completion Time (ms)",
+    "Source X", "Source Y", "Target X", "Target Y", "Click X", "Click Y", "Source-Target Distance", "dx", "Incorrect"
+];
+let aggregateTaskResultHeader = [
+    "Participant Code", "Session Code", "Condition Code", "Hand Dominance", "Pointing Device", "Device Experience",
+    "Amplitude", "Width", "Number of Targets", "Task Index", "Mean Completion Time (ms)", "Error (%)",
+    "SDx", "We", "IDe", "Ae", "Throughput (bps)"
+];
+let overallMeanResultHeader = [
+    "Participant Code", "Session Code", "Condition Code", "Hand Dominance", "Pointing Device", "Device Experience",
+    "Mean Completion Time (ms)", "Mean Click Error (%)", "Mean Throughput (bps)"
+];
 
-$(document).ready(function() {
+$(document).ready(function () {
     $("#main_menu").hide();
 
-    // Retrieving server download requirement from metadata
+    // サーバー保存設定の取得
     if ($("#webfitt-meta").data()["servdown"] == "True") {
         servdown = true;
     }
 
-    // Retrieving result view requirement from metadata
+    // 実験完了後の結果表示の有無
     if ($("#webfitt-meta").data()["resultsview"] == "False") {
         resultsview = false;
     }
 
-    // Change GitHub logo on hover
-    $("#github_logo").hover(function() {
+    // GitHub ロゴ hover
+    $("#github_logo").hover(function () {
         $("#github_logo").attr("src", "assets/github_hover.png");
-    }, function() {
+    }, function () {
         $("#github_logo").attr("src", "assets/github_default.png");
     });
 
-    // Change header logo on hover
-    $("#header_logo").hover(function() {
+    // ヘッダーロゴ hover
+    $("#header_logo").hover(function () {
         $("#header_logo").attr("src", "assets/header_logo_hover.png");
-    }, function() {
+    }, function () {
         $("#header_logo").attr("src", "assets/header_logo.png");
     });
 
-    // Change calibrate icon on hover
-    $("#calibration_icon").hover(function() {
+    // キャリブレーションアイコン hover
+    $("#calibration_icon").hover(function () {
         $("#calibration_icon").attr("src", "assets/calibrate_hover.png");
-    }, function() {
+    }, function () {
         $("#calibration_icon").attr("src", "assets/calibrate.png");
     });
 
-    // Change volume icon on hover
-    $("#volume_icon").hover(function() {
+    // ボリュームアイコン hover
+    $("#volume_icon").hover(function () {
         renderVolumeImage(true);
-    }, function() {
+    }, function () {
         renderVolumeImage(false);
     });
 
-    // Change trail icon on hover
-    $("#trail_icon").hover(function() {
+    // トレイルアイコン hover
+    $("#trail_icon").hover(function () {
         renderTrailImage(true);
-    }, function() {
+    }, function () {
         renderTrailImage(false);
     });
 
-    // Register mouse click on canvas
-    $(document).on("click", "canvas", function() {
+    // キャンバス上のクリックイベント
+    $(document).on("click", "canvas", function () {
         if (isTaskRunning) {
             onCanvasClick();
         }
     });
 
-    // Register mouse click on UI elements
-    $(document).on("click", ".ui_item", function() {
+    // UI要素のクリックイベント
+    $(document).on("click", ".ui_item", function () {
         var id = $(this).attr("id");
         if (id == "volume_icon") {
             isMute = !isMute;
@@ -120,7 +137,7 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on("click", "#confirm_calibration_btn", function() {
+    $(document).on("click", "#confirm_calibration_btn", function () {
         setCalibrationValue();
         if (getCookie("webfitt-calibration") == "") {
             $('#calibration-modal').modal('show');
@@ -130,62 +147,63 @@ $(document).ready(function() {
         }
     });
 
-    // Refresh page when header-logo is clicked
-    $("#header_logo").click(function() {
+    // ヘッダーロゴクリックでリロード
+    $("#header_logo").click(function () {
         window.location.reload();
     });
 
-    // Open GitHub project page when GitHub logo is clicked
-    $("#github_logo").click(function() {
+    // GitHubロゴクリックでGitHubページを開く
+    $("#github_logo").click(function () {
         window.open("https://github.com/adildsw/WebFitt");
     });
 
-    $('#calibration-modal')
-        .modal({
-            closable: false,
-            onApprove: function() {
-                setCalibrationCookie(calibrationScale);
-                endCalibration();
-                return true;
-            },
-            onDeny: function() {
-                endCalibration();
-                return true;
-            }
-        });
+    $('#calibration-modal').modal({
+        closable: false,
+        onApprove: function () {
+            setCalibrationCookie(calibrationScale);
+            endCalibration();
+            return true;
+        },
+        onDeny: function () {
+            endCalibration();
+            return true;
+        }
+    });
 
-    $('#calibrated-modal')
-        .modal({
-            closable: false,
-            onApprove: function() {
-                setCalibrationCookie(calibrationScale);
-                endCalibration();
-                return true;
-            }
-        });
+    $('#calibrated-modal').modal({
+        closable: false,
+        onApprove: function () {
+            setCalibrationCookie(calibrationScale);
+            endCalibration();
+            return true;
+        }
+    });
 
-    // Validate input and starting the task
-    $(document).on("click", "#start-test-btn", function() {
+    // Start Test ボタン押下時の処理
+    $(document).on("click", "#start-test-btn", function () {
         participantCode = $("#participant-code").val();
         sessionCode = $("#session-code").val();
         conditionCode = $("#condition-code").val();
         handDominance = $("input[name='hand-dominance']:checked").val();
         pointingDevice = $("input[name='pointing-device']:checked").val();
         deviceExperience = $("input[name='device-experience']:checked").val();
+
         var A_raw = $("#amplitude").val();
         var W_raw = $("#width").val();
         var n = parseInt($("#number-of-targets").val());
+        var t = parseInt($("#number-of-trials").val()); // ★追加: 周回数を取得
+
         var policy = false;
         if ($("#policy").is(":checked")) {
             policy = true;
         }
         var A = A_raw.replace(" ", '').split(",");
         var W = W_raw.replace(" ", '').split(",");
-        
+
         var correctFlag = true;
         var errorMsg = "";
 
-        // Check empty values
+        // 必須入力チェック
         if (participantCode == "") {
             correctFlag = false;
             errorMsg = "ERROR: Participant Code is empty.";
@@ -206,56 +224,58 @@ $(document).ready(function() {
             correctFlag = false;
             errorMsg = "ERROR: Width is empty.";
         }
+        if (isNaN(n) || n < 1) {
+            correctFlag = false;
+            errorMsg = "ERROR: Number of Targets is invalid.";
+        }
+        if (isNaN(t) || t < 1) {
+            correctFlag = false;
+            errorMsg = "ERROR: Number of Trials is invalid.";
+        }
 
-        // Parsing amplitude and width values
+        // 数値配列に変換
         if (isArrayOfNumbers(A)) {
             A = parseArrayOfNumbers(A);
-        }
-        else {
+        } else {
             correctFlag = false;
             errorMsg = "ERROR: Incorrect amplitude value(s) entered."
         }
         if (isArrayOfNumbers(W)) {
             W = parseArrayOfNumbers(W);
-        }
-        else {
+        } else {
             correctFlag = false;
             errorMsg = "ERROR: Incorrect width value(s) entered."
         }
 
-        // Checking data usage policy agreement
+        // サーバー保存の場合は同意必須
         if (!policy && servdown) {
             correctFlag = false;
             errorMsg = "ERROR: Data usage policy agreement is required."
         }
 
         if (correctFlag) {
-            // Hide Main Menu
+            // メインメニューを隠す
             $("#main_menu").hide();
-
-            // Begin App
-            beginApp(A, W, n);
-        }
-        else {
+            // 実験開始
+            beginApp(A, W, n, t);
+        } else {
             alert(errorMsg);
         }
     });
 
-    // Hide header logo at main menu
+    // header logoは初期表示隠す
     $("#header_logo").hide();
 
-    // Hide data policy checkbox at main menu if servdown is false
+    // サーバー保存がfalseの場合、データポリシーUIを隠す
     if (!servdown) {
         $(".servdown-policy").hide();
     }
-
 });
 
 function setCalibrationCookie(calibrationScale) {
     setCookie("webfitt-calibration", calibrationScale, 365);
 }
 
-// Begins the display calibration process
 function beginCalibration() {
     isCalibrating = true;
     $("#main_menu").hide();
@@ -272,50 +292,41 @@ function endCalibration() {
     $("#header_logo").hide();
     $("#confirm_calibration_btn").hide();
     slider.value(calibrationScale);
-    // hide slider
     slider.style('display', 'none');
 }
 
 /*
- * Starts the WebFitt Application.
- *
- * Parameters
- * a_list: (Integer[]) List of amplitude values
- * w_list: (Integer[]) List of width values
- * n: (Integer) Number of targets
- * 
+ * 実験開始: A, W の組み合わせごとにタスクを生成し、シャッフルする
+ * a_list, w_list: 配列
+ * n: ターゲット数
+ * t: 何周分(何倍)行うか
  */
-function beginApp(a_list, w_list, n) {
+function beginApp(a_list, w_list, n, t) {
     taskIdx = 0;
     clickNumber = 0;
     clickData = [];
     aggregateTaskResult = [];
     overallMeanResult = [];
-    tasks = generateTaskSequence(a_list, w_list, n);
-    uncalibratedTasks = generateUncalibratedTaskSequence(a_list, w_list, n);
 
-    // Shuffling the array
+    tasks = generateTaskSequence(a_list, w_list, n, t);
+    uncalibratedTasks = generateUncalibratedTaskSequence(a_list, w_list, n, t);
+
+    // シャッフル
     for (var i = tasks.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
-        var temp = tasks[i];
-        tasks[i] = tasks[j];
-        tasks[j] = temp;
-
-        var temp = uncalibratedTasks[i];
-        uncalibratedTasks[i] = uncalibratedTasks[j];
-        uncalibratedTasks[j] = temp;
+        [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
+        [uncalibratedTasks[i], uncalibratedTasks[j]] = [uncalibratedTasks[j], uncalibratedTasks[i]];
     }
-
 
     if (tasks.length == 0) {
         alert("ERROR: No task to run.");
-    }
-    else {
+    } else {
         isTaskRunning = true;
         $("#header_logo").show();
     }
 }
 
+// p5.js のプリロード
 function preload() {
     creditCardImg = loadImage("assets/credit_card.png");
     robotoLightFont = loadFont("./assets/roboto-light.ttf");
@@ -326,6 +337,7 @@ function preload() {
     incorrectAudio.setVolume(0.2);
 }
 
+// p5.js のセットアップ
 function setup() {
     createCanvas(windowWidth, windowHeight);
     frameRate(60);
@@ -335,16 +347,17 @@ function setup() {
     slider.style('width', '200px');
     slider.style('display', 'none');
     slider.position(width / 2 - 100, height / 2 + 320);
-    $("#confirm_calibration_btn").css({'width': 150, 'top': height / 2 + 350, 'left': width / 2 - 75});
+    $("#confirm_calibration_btn").css({ 'width': 150, 'top': height / 2 + 350, 'left': width / 2 - 75 });
 
-    // If the display has never been calibrated before, begin the calibration process
+    // 既にキャリブレーション済みかどうか
     if (isDisplayCalibrated()) {
         calibrationScale = getCalibrationValue();
     } else {
         beginCalibration();
     }
 }
-  
+
+// p5.js のループ
 function draw() {
     background(255);
 
@@ -359,8 +372,7 @@ function draw() {
     else if (isTaskFinished) {
         if (resultsview) {
             renderTaskCompleteMessage();
-        }
-        else {
+        } else {
             window.location.reload();
         }
     }
@@ -369,6 +381,7 @@ function draw() {
     }
 }
 
+// ディスプレイキャリブレーション画面の描画
 function renderCalibrationPanel() {
     background(255);
 
@@ -381,33 +394,39 @@ function renderCalibrationPanel() {
     textFont(robotoLightFont);
     textSize(32);
     text("Please adjust the slider below so that the card on your screen matches a physical credit card.", width / 2, 210);
-    
+
     let val = slider.value();
     slider.style('display', 'block');
 
-    cardWidth = 500 * val;
-    cardHeight = cardWidth / 1.586
+    let cardWidth = 500 * val;
+    let cardHeight = cardWidth / 1.586;
     image(creditCardImg, (width / 2) - (cardWidth / 2), (height / 2) - (cardHeight / 2) + 30, cardWidth, cardHeight);
 }
 
+/*
+ * 1フレームごとの実験進行管理
+ * ターゲットを描画し、(n×t) + 1 回クリックでタスク終了 → 次タスクへ
+ */
 function runPipeline() {
     var A = tasks[taskIdx].A;
-    var W = tasks[taskIdx].W ;
+    var W = tasks[taskIdx].W;
     var n = tasks[taskIdx].n;
+    var t = tasks[taskIdx].t; // 周回数
     var mainTarget = getTargetIdxFromClickNumber(clickNumber, n);
     renderTargets(A, W, n, mainTarget);
 
-    if (clickNumber == n + 1) {
+    // 1タスクあたり n×t 回クリックしたら次へ (n×t+1 回目で終了処理)
+    if (clickNumber == n * t + 1) {
         if (taskIdx < tasks.length - 1) {
             taskIdx++;
-        }
-        else {
+        } else {
+            // 全タスク終了
             isTaskRunning = false;
             isTaskFinished = true;
             computeAggregateTaskResult();
             computeOverallMeanResult();
             var filename = "WebFitts_" + participantCode + "_" + sessionCode + "_" + conditionCode + "_" + pointingDevice;
-			saveAsZipFile(filename);
+            saveAsZipFile(filename);
             if (servdown) {
                 uploadResult();
             }
@@ -417,6 +436,7 @@ function runPipeline() {
     }
 }
 
+// キャンバス上クリック時の処理
 function onCanvasClick() {
     var A = tasks[taskIdx].A;
     var W = tasks[taskIdx].W;
@@ -432,6 +452,7 @@ function onCanvasClick() {
         incorrectAudio.play();
     }
 
+    // 最初の正解クリックまでは開始合図
     if (correct && !beginFlag) {
         beginFlag = true;
         lastClickTime = millis();
@@ -446,22 +467,10 @@ function onCanvasClick() {
     }
 }
 
-/*
- * Generates a randomized sequence of tasks.
- *
- * Parameters
- * a_list: (Integer[]) List of amplitude values
- * w_list: (Integer[]) List of width values
- * n: (Integer) Number of targets
- * 
- * Returns
- * (Task[]) Randomized sequence of tasks
- * 
- */
-function generateTaskSequence(a_list, w_list, n) {
-    // Calibrating amplitude and width values
-    var a_list_temp = []
-    var w_list_temp = []
+// タスクシーケンス(キャリブレーション適用)生成
+function generateTaskSequence(a_list, w_list, n, t) {
+    var a_list_temp = [];
+    var w_list_temp = [];
     for (var i = 0; i < a_list.length; i++) {
         a_list_temp.push(a_list[i] * calibrationScale);
     }
@@ -469,55 +478,34 @@ function generateTaskSequence(a_list, w_list, n) {
         w_list_temp.push(w_list[i] * calibrationScale);
     }
 
-    // Creating an array with a cross product of a_list and w_list
     var taskSequence = [];
     for (var i = 0; i < a_list_temp.length; i++) {
         for (var j = 0; j < w_list_temp.length; j++) {
-            taskSequence.push(new Task(a_list_temp[i], w_list_temp[j], n));
+            taskSequence.push(new Task(a_list_temp[i], w_list_temp[j], n, t));
         }
     }
-
     return taskSequence;
 }
 
-function generateUncalibratedTaskSequence(a_list, w_list, n) {
-    // Creating an array with a cross product of a_list and w_list
+// タスクシーケンス(キャリブレーション前値)生成
+function generateUncalibratedTaskSequence(a_list, w_list, n, t) {
     var taskSequence = [];
     for (var i = 0; i < a_list.length; i++) {
         for (var j = 0; j < w_list.length; j++) {
-            taskSequence.push(new Task(a_list[i], w_list[j], n));
+            taskSequence.push(new Task(a_list[i], w_list[j], n, t));
         }
     }
-
     return taskSequence;
 }
 
-/*
- * Checks if the correct target is clicked.
- * 
- * Parameters
- * A: (Integer) Amplitude, defined as the distance between the centers of the screen and each target
- * W: (Integer) Width (radius) of the targets
- * n: (Integer) Number of targets
- * mainTarget: (Integer) Index of the main target
- * clickPos: (Pos) Position of the mouse click
- * 
- * Returns
- * (Boolean) True if the correct target is clicked, false otherwise
- * 
- */
+// クリックが正解ターゲット内かどうか
 function isClickCorrect(A, W, n, mainTarget, clickPos) {
     var pos = getTargetPosition(A, n, mainTarget);
     var dist = sqrt(pow(clickPos.x - pos.x, 2) + pow(clickPos.y - pos.y, 2));
-    if (dist < W / 2) {
-        return true;
-    }
-    else {
-        return false;;
-    }
+    return (dist < W / 2);
 }
 
-// Maps key pres to UI controls
+// キーボード操作 (トレイルon/off, ミュートon/off)
 function keyPressed() {
     if (key === 't') {
         isTrailing = !isTrailing;
@@ -529,7 +517,7 @@ function keyPressed() {
     }
 }
 
-// Renders trail on mouse cursor
+// トレイル描画
 function renderTrail() {
     if (!isTrailing || !beginFlag) {
         background(255);
@@ -544,7 +532,7 @@ function renderTrail() {
     }
 }
 
-// Renders task information text
+// 右上の情報テキスト表示
 function renderInfoText() {
     noStroke();
     textSize(28);
@@ -553,10 +541,15 @@ function renderInfoText() {
     textAlign(LEFT);
     text("Task " + (taskIdx + 1) + " of " + tasks.length, width - 400, 50);
     textFont(robotoLightFont);
-    text("Amplitude " + uncalibratedTasks[taskIdx].A + " | Width " + uncalibratedTasks[taskIdx].W, width - 400, 85);
+    text(
+        "Amplitude " + uncalibratedTasks[taskIdx].A +
+        " | Width " + uncalibratedTasks[taskIdx].W +
+        " | " + uncalibratedTasks[taskIdx].n + " Targets × " + uncalibratedTasks[taskIdx].t + " Trials",
+        width - 400, 85
+    );
 }
 
-// Renders a message and aggregate info when the task(s) are complete
+// タスク完了メッセージ
 function renderTaskCompleteMessage() {
     background(255);
 
@@ -567,9 +560,9 @@ function renderTaskCompleteMessage() {
     textAlign(LEFT);
     text("Overall Mean Result", width - 400, 50);
     textFont(robotoLightFont);
-    text("Mean Time (ms): " + Math.round(overallMeanResult[0][6] * 100) / 100, width - 400, 85);
-    text("Mean Error (%): " + Math.round(overallMeanResult[0][7] * 100) / 100, width - 400, 120);
-    text("Mean Throughput (bps): " + Math.round(overallMeanResult[0][8] * 100) / 100, width - 400, 155);
+    text("Mean Time (ms): " + overallMeanResult[0][6].toFixed(2), width - 400, 85);
+    text("Mean Error (%): " + overallMeanResult[0][7].toFixed(2), width - 400, 120);
+    text("Mean Throughput (bps): " + overallMeanResult[0][8].toFixed(2), width - 400, 155);
 
     noStroke();
     textSize(64);
@@ -589,13 +582,7 @@ function renderTaskCompleteMessage() {
     }
 }
 
-/*
- * Processes click data and appends it to clickData array.
- *
- * Parameters
- * clickPos: (Pos) Coordinate of the mouse click
- * 
- */
+// クリックデータを計算して配列に保存
 function computeClickData(clickPos) {
     var A = uncalibratedTasks[taskIdx].A;
     var W = uncalibratedTasks[taskIdx].W;
@@ -607,7 +594,7 @@ function computeClickData(clickPos) {
     var sourceTargetDist = sqrt(pow(sourcePos.x - targetPos.x, 2) + pow(sourcePos.y - targetPos.y, 2));
     var sourceClickDist = sqrt(pow(clickPos.x - sourcePos.x, 2) + pow(clickPos.y - sourcePos.y, 2));
     var targetClickDist = sqrt(pow(clickPos.x - targetPos.x, 2) + pow(clickPos.y - targetPos.y, 2));
-    var dx = (pow(sourceClickDist, 2) - pow(targetClickDist, 2) - pow(sourceTargetDist, 2)) / (2 * sourceTargetDist);
+    var dx = ((sourceClickDist * sourceClickDist) - (targetClickDist * targetClickDist) - (sourceTargetDist * sourceTargetDist)) / (2 * sourceTargetDist);
     var isIncorrect = isClickCorrect(tasks[taskIdx].A, tasks[taskIdx].W, n, getTargetIdxFromClickNumber(clickNumber, n), clickPos) ? 0 : 1;
 
     var data = [];
@@ -636,22 +623,36 @@ function computeClickData(clickPos) {
     clickData.push(data);
 }
 
-// Computes the aggregate task results and appends it to aggregateTaskResult array.
+// タスクごとの集計
 function computeAggregateTaskResult() {
     for (var i = 0; i < tasks.length; i++) {
         var A = uncalibratedTasks[i].A;
         var W = uncalibratedTasks[i].W;
         var n = uncalibratedTasks[i].n;
+        var t = uncalibratedTasks[i].t; // ★周回数
+        var totalClicksThisTask = n * t; // ★1タスクあたりの総クリック数
+
         var clickTimeList = [];
         var errorList = [];
         var dxList = [];
         var avgEffectiveAmplitudeList = [];
-        for (var j = i * n; j < (i + 1) * n; j++) {
-            clickTimeList.push(clickData[j][11]);
-            errorList.push(clickData[j][20]);
-            dxList.push(clickData[j][19]);
-            avgEffectiveAmplitudeList.push((clickData[j][18] + clickData[j][19]));
+
+        // i番目タスクのクリックデータ範囲
+        for (var j = i * totalClicksThisTask; j < (i + 1) * totalClicksThisTask; j++) {
+            if (!clickData[j]) {
+                break;
+            }
+            clickTimeList.push(clickData[j][11]);            // Completion Time
+            errorList.push(clickData[j][20]);               // Incorrect
+            dxList.push(clickData[j][19]);                  // dx
+            avgEffectiveAmplitudeList.push(clickData[j][18] + clickData[j][19]); // Ae = Distance + dx
         }
+
+        // クリックデータが足りない(未完了)ならスキップ
+        if (clickTimeList.length < totalClicksThisTask) {
+            continue;
+        }
+
         var meanTime = computeMean(clickTimeList);
         var error = computeMean(errorList) * 100;
         var sdx = computeStandardDeviation(dxList);
@@ -683,12 +684,13 @@ function computeAggregateTaskResult() {
     }
 }
 
-// Computes overall mean task results and appends it to overallMeanResult array.
+// 全体平均の集計
 function computeOverallMeanResult() {
     var meanTimes = [];
     var errors = [];
     var throughputs = [];
-    for (var i = 0; i < tasks.length; i++) {
+    // aggregateTaskResult を対象にする
+    for (var i = 0; i < aggregateTaskResult.length; i++) {
         meanTimes.push(aggregateTaskResult[i][10]);
         errors.push(aggregateTaskResult[i][11]);
         throughputs.push(aggregateTaskResult[i][16]);
@@ -696,7 +698,7 @@ function computeOverallMeanResult() {
     var overallMeanTime = computeMean(meanTimes);
     var overallMeanError = computeMean(errors);
     var overallMeanThroughput = computeMean(throughputs);
-    
+
     var ovRes = [];
     ovRes.push(participantCode);
     ovRes.push(sessionCode);
@@ -711,34 +713,32 @@ function computeOverallMeanResult() {
     overallMeanResult.push(ovRes);
 }
 
-// Generates individual click result string
-function generateClickResultString(){
+// 各種CSV文字列生成
+function generateClickResultString() {
     var resultString = clickDataHeader.join(",") + "\n";
-    for(var i = 0; i < clickData.length; i++){
+    for (var i = 0; i < clickData.length; i++) {
         resultString += clickData[i].join(",") + "\n";
     }
     return resultString;
 }
 
-// Generates aggregate task result string
-function generateTaskResultString(){
+function generateTaskResultString() {
     var resultString = aggregateTaskResultHeader.join(",") + "\n";
-    for(var i = 0; i < aggregateTaskResult.length; i++){
+    for (var i = 0; i < aggregateTaskResult.length; i++) {
         resultString += aggregateTaskResult[i].join(",") + "\n";
     }
     return resultString;
 }
 
-// Generates overall mean result string
-function generateMeanResultString(){
+function generateMeanResultString() {
     var resultString = overallMeanResultHeader.join(",") + "\n";
-    for(var i = 0; i < overallMeanResult.length; i++){
+    for (var i = 0; i < overallMeanResult.length; i++) {
         resultString += overallMeanResult[i].join(",") + "\n";
     }
     return resultString;
 }
 
-// Concatenates all the result arrays into a string and returns it
+// 結果をまとめて文字列化
 function generateResultString() {
     var resultString = "";
     resultString = clickDataHeader.join(",") + "\n";
@@ -758,7 +758,7 @@ function generateResultString() {
     return resultString;
 }
 
-// Uploads result string to the server
+// サーバーに結果を送信
 function uploadResult() {
     var clickResult = generateClickResultString();
     var taskResult = generateTaskResultString();
@@ -767,31 +767,21 @@ function uploadResult() {
     var filename = "WebFitts_" + participantCode + "_" + sessionCode + "_" + conditionCode + "_" + pointingDevice;
     var data = "filename=" + filename + "&click_result=" + clickResult + "&mean_result=" + meanResult + "&task_result=" + taskResult;
     var url = "/saveResult";
-    postRequest(url, data, function() {
+    postRequest(url, data, function () {
         console.log("Result uploaded to server!");
     });
 }
 
-/*
- * Renders the targets for the Fitt's Law experiment.
- *
- * Parameters
- * A: (Integer) Amplitude, defined as the distance between the centers of the screen and each target
- * W: (Integer) Width (radius) of the targets
- * n: (Integer) Number of targets
- * mainTarget: (Integer) Index of the main target
- * 
- */
+// ターゲット描画
 function renderTargets(A, W, n, mainTarget) {
-    // Clearing circle inner area
+    // まず白で上書きして消す
     for (var i = 0; i < n; i++) {
         var pos = getTargetPosition(A, n, i);
         noStroke();
         fill("#FFFFFF");
         circle(pos.x, pos.y, W);
     }
-
-    // Creating circles with transparent inner areas
+    // 枠だけのサークルを描画
     for (var i = 0; i < n; i++) {
         var pos = getTargetPosition(A, n, i);
         stroke("#181818");
@@ -804,17 +794,7 @@ function renderTargets(A, W, n, mainTarget) {
     }
 }
 
-/*
- * Calculates the index of the next target.
- *
- * Parameters
- * c: (Integer) Click number
- * n: (Integer) Number of targets
- * 
- * Returns
- * (Integer) Index of the next target
- * 
- */
+// クリック数→次のターゲットインデックスを計算
 function getTargetIdxFromClickNumber(c, n) {
     var marker1 = -1;
     var marker2 = n / 2;
@@ -828,44 +808,31 @@ function getTargetIdxFromClickNumber(c, n) {
             marker1++;
             marker1 = marker1 % n;
             targetIdx = marker1;
-        }
-        else {
+        } else {
             marker2++;
             marker2 = marker2 % n;
             targetIdx = marker2;
         }
     }
-
     return targetIdx;
 }
 
-/*
- * Calculates the position of the target.
- *
- * Parameters
- * A: (Integer) Amplitude, defined as the distance between the centers of the screen and each target
- * n: (Integer) Number of targets
- * idx: (Integer) Index of the target
- * 
- * Returns
- * (Pos) Position of the target
- * 
- */
-function getTargetPosition(A, n, idx){
+// ターゲットの座標を計算
+function getTargetPosition(A, n, idx) {
     var thetaX = 360 / n;
-    var x = (width / 2) + cos(radians(idx * thetaX)) * A/2;
-    var y = (height / 2) + sin(radians(idx * thetaX)) * A/2;
+    var x = (width / 2) + cos(radians(idx * thetaX)) * A / 2;
+    var y = (height / 2) + sin(radians(idx * thetaX)) * A / 2;
     return new Pos(x, y);
 }
 
-// Resizes the canvas to fit the window on resize
+// ウィンドウリサイズ時
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
     slider.position(width / 2 - 100, height / 2 + 320);
-    $("#confirm_calibration_btn").css({'width': 150, 'top': height / 2 + 350, 'left': width / 2 - 75});
+    $("#confirm_calibration_btn").css({ 'width': 150, 'top': height / 2 + 350, 'left': width / 2 - 75 });
 }
 
-// Render volume image based on hover state and click
+// ボリューム画像の更新
 function renderVolumeImage(isHovering) {
     if (isHovering) {
         if (isMute) {
@@ -874,7 +841,7 @@ function renderVolumeImage(isHovering) {
         else {
             $("#volume_icon").attr("src", "assets/volume_on_hover.png");
         }
-    } 
+    }
     else {
         if (isMute) {
             $("#volume_icon").attr("src", "assets/volume_mute_default.png");
@@ -885,7 +852,7 @@ function renderVolumeImage(isHovering) {
     }
 }
 
-// Render trailing image based on hover state and click
+// トレイル画像の更新
 function renderTrailImage(isHovering) {
     if (isHovering) {
         if (isTrailing) {
@@ -894,7 +861,7 @@ function renderTrailImage(isHovering) {
         else {
             $("#trail_icon").attr("src", "assets/trail_off_hover.png");
         }
-    } 
+    }
     else {
         if (isTrailing) {
             $("#trail_icon").attr("src", "assets/trail_on_default.png");
@@ -905,36 +872,24 @@ function renderTrailImage(isHovering) {
     }
 }
 
-/*
-|----------------------------------------------------
-| CALIBRATION FUNCTIONS
-|----------------------------------------------------
-*/
-
-// Checks if the system has been calibrated before
+// ディスプレイがキャリブレーション済みかどうか
 function isDisplayCalibrated() {
     if (getCookie("webfitt-calibration") == "") return false;
     else return true;
 }
 
-// Sets the calibration value and saves it to the cookie
+// スライダー値をcookieに反映
 function setCalibrationValue() {
     calibrationScale = slider.value();
 }
 
-// Gets the calibration value from the cookie
 function getCalibrationValue() {
     return getCookie("webfitt-calibration");
 }
 
-/*
- |----------------------------------------------------
- | HELPER FUNCTIONS
- |----------------------------------------------------
- */
-
-// Computes mean of given data
+// 平均値
 function computeMean(data) {
+    if (data.length === 0) return NaN;
     var sum = 0;
     for (var i = 0; i < data.length; i++) {
         sum += data[i];
@@ -942,8 +897,9 @@ function computeMean(data) {
     return sum / data.length;
 }
 
-// Computes standard deviation of given data
+// 標準偏差
 function computeStandardDeviation(data) {
+    if (data.length <= 1) return 0;
     var mean = computeMean(data);
     var sum = 0;
     for (var i = 0; i < data.length; i++) {
@@ -952,17 +908,10 @@ function computeStandardDeviation(data) {
     return Math.sqrt(sum / (data.length - 1));
 }
 
-// Generates a random number between min and max (inclusive)
-function randInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-// Performs a post request to the given url and calls the callback function upon success
+// POSTリクエスト
 function postRequest(url, data, callback) {
     var request = new XMLHttpRequest();
-    request.onreadystatechange = function() { 
+    request.onreadystatechange = function () {
         if (request.readyState == 4 && request.status == 200)
             callback(request.responseText);
     }
@@ -971,21 +920,18 @@ function postRequest(url, data, callback) {
     request.send(data);
 }
 
-// Function to save results as a zip file
+// ZIPダウンロード
 function saveAsZipFile(filename) {
-	var zip = new JSZip();
-	zip.file(filename + "_click.csv", generateClickResultString());
-	zip.file(filename + "_task.csv", generateTaskResultString());
-	zip.file(filename + "_overall.csv", generateMeanResultString());
-	// zip.generateAsync({type:"base64"}).then(function (content) {
-		 // location.href="data:application/zip;base64," + content;
-	// });
-	zip.generateAsync({type:"blob"}).then(function (content) {
-		 saveAs(content, filename + ".zip"); // FileSaver.js Library Function
-	});
+    var zip = new JSZip();
+    zip.file(filename + "_click.csv", generateClickResultString());
+    zip.file(filename + "_task.csv", generateTaskResultString());
+    zip.file(filename + "_overall.csv", generateMeanResultString());
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+        saveAs(content, filename + ".zip"); // FileSaver.js利用
+    });
 }
 
-// Checks if all elements in the array are numbers
+// 配列が全て数値かどうか
 function isArrayOfNumbers(array) {
     for (var i = 0; i < array.length; i++) {
         if (isNaN(array[i])) {
@@ -995,7 +941,7 @@ function isArrayOfNumbers(array) {
     return true;
 }
 
-// Parses an array of stringed numbers into numbers
+// 文字列配列→数値配列
 function parseArrayOfNumbers(array) {
     var parsedArray = [];
     for (var i = 0; i < array.length; i++) {
@@ -1004,12 +950,12 @@ function parseArrayOfNumbers(array) {
     return parsedArray;
 }
 
-// Utility function to get cookie value
+// Cookie操作
 function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
+    for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
         while (c.charAt(0) == ' ') {
             c = c.substring(1);
@@ -1021,58 +967,9 @@ function getCookie(cname) {
     return "";
 }
 
-// Utility function to set cookie value
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires=" + d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-/*
- |----------------------------------------------------
- | REFERENCE FUNCTIONS
- |----------------------------------------------------
- */
-
-// Calculation Test
-function testing() {
-    var sX = [540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227];
-    var sY = [592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592];
-    var tX = [227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540, 227, 540];
-    var tY = [592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592, 592];
-    var cX = [218, 529, 195, 533, 209, 607, 231, 540, 231, 560, 207, 524, 239, 515, 180, 501, 215, 571, 215, 521];
-    var cY = [534, 496, 608, 547, 651, 554, 650, 568, 642, 567, 653, 604, 704, 610, 675, 606, 666, 621, 690, 641];
-    var mt = [262, 268, 248, 233, 251, 252, 283, 214, 301, 266, 258, 258, 248, 242, 241, 252, 243, 255, 252, 210];
-
-    var a = [];
-    var b = [];
-    var c = [];
-    var d = [];
-    var aes = [];
-
-    for (var i = 0; i < sX.length; i++) {
-        a.push(Math.sqrt((sX[i] - tX[i]) * (sX[i] - tX[i]) + (sY[i] - tY[i]) * (sY[i] - tY[i])));
-        b.push(Math.sqrt((tX[i] - cX[i]) * (tX[i] - cX[i]) + (tY[i] - cY[i]) * (tY[i] - cY[i])));
-        c.push(Math.sqrt((sX[i] - cX[i]) * (sX[i] - cX[i]) + (sY[i] - cY[i]) * (sY[i] - cY[i])));
-        d.push(((c[i] * c[i]) - (b[i] * b[i]) - (a[i] * a[i]))/(2.0 * a[i]));
-        aes.push(a[i] + d[i]);
-    }
-
-    var mean_d = computeMean(d);
-    var sd_d = computeStandardDeviation(d);
-    var ae = computeMean(aes);
-    var we = 4.133 * sd_d;
-    var ide = Math.log2(ae / we + 1.0);
-    var meant = computeMean(mt);
-    var throughput = ide * 1000 / meant;
-
-    console.log(d);
-    console.log(mean_d);
-    console.log(sd_d);
-    console.log(ae);
-    console.log(we);
-    console.log(ide);
-    console.log(meant);
-    console.log(throughput);
 }
