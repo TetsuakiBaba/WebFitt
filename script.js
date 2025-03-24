@@ -575,15 +575,23 @@ function renderInfoText() {
     textSize(28);
     fill(0);
     textFont(robotoRegularFont);
-    textAlign(LEFT);
+    textAlign(LEFT, TOP);
     text("Task " + (taskIdx + 1) + " of " + tasks.length, width - 400, 50);
     textFont(robotoLightFont);
     text(
         "Amplitude " + uncalibratedTasks[taskIdx].A +
         " | Width " + uncalibratedTasks[taskIdx].W +
-        " | " + uncalibratedTasks[taskIdx].n + " Targets × " + uncalibratedTasks[taskIdx].t + " Trials",
+        " | \n" + uncalibratedTasks[taskIdx].n + " Targets × " + uncalibratedTasks[taskIdx].t + " Trials",
         width - 400, 85
     );
+    // 最初のクリックの場合は開始合図を表示
+    if (!beginFlag) {
+
+        textSize(24);
+        textAlign(LEFT, CENTER);
+        textFont(robotoRegularFont);
+        text("<- Click to start the task.", 20 + getTargetPosition(tasks[taskIdx].A, tasks[taskIdx].n, 0).x, height / 2);
+    }
 }
 
 // タスク完了メッセージ

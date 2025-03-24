@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
 }
@@ -50,7 +51,7 @@ canvas {
 
 #confirm_calibration_btn {
     position: absolute;
-    z-index: 9999;
+    z-index: 1;
     display: none;
 }
 
@@ -63,4 +64,4 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-} 
+}

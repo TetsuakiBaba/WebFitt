@@ -63,7 +63,7 @@
                             </div>
                             <div class="field">
                                 <label>Condition Code</label>
-                                <select id="condition-code">
+                                <select id="condition-code" class="form-select  border-danger">
                                     <option value="C0">with deskture</option>
                                     <option value="C1">without deskture</option>
                                 </select>
@@ -188,7 +188,7 @@
                         </div>
 
                         <div id="start-test-btn" class="ui fluid primary button">
-                            Begin
+                            Begin（実験を開始，または練習する）
                         </div>
                     </div>
                 </div>
@@ -229,6 +229,69 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">deskture評価実験</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="assets/readme.gif" width="100%" class="img-fluid" alt="Readme">
+                    <h5>概要</h5>
+                    <p>
+                        この実験では、画面上に表示される円形のターゲットを、
+                        できるだけ速く、かつ正確にトラックパッドを利用してクリックしていただきます。deskture使用の有無による違いを評価することが目的です．
+                    </p>
+                    <h5>操作方法</h5>
+                    <p>
+                    <ol>
+                        <li>
+                            初めてこのページを開いた場合，このダイアログを閉じると画面サイズを合わせるDisplay
+                            Caribrationを行なってください．現物のクレジットカードとディスプレイ上のクレジットカードの大きさがなるべく合うように調整してください．キャリブレーションは画面左下のディスプレイアイコンをクリックするといつでも行えます．
+                        </li>
+                        <li>
+                            Condition Codeの「with deskture」「without deskture」を選択したのち，begin
+                            ボタンを押すと実験が開始し，ターゲットが表示されます．他の項目は変更しないでください．
+                        </li>
+                        <li>ターゲットが表示されたら、素早くマウス（またはトラックパッド）を動かし、ターゲットの中心をクリックしてください。ただし最初のクリックがされるまでは計測は始まりません．</li>
+                        <li>ターゲットは画面上に順番に表示され、1つずつクリックしていきます。</li>
+                        <li>タスクが終了するとログデータのダウンロードが 始まります．このzipファイルをそのまま馬場に送ってください</li>
+                    </ol>
+                    </p>
+                    <h5>守っていただきたいこと</h5>
+                    <ul>
+                        <li>
+                            なるべく素早く、そして正確に操作してください。
+                        </li>
+                        <li>ターゲットの中央をクリックすることを意識してください。</li>
+                        <li>万が一、ターゲットの外側をクリックしてしまっても、そのまま次に進んでください（やり直しは不要です）。</li>
+                        <li>最初に触覚フィードバックあり・なしで必ず練習をしてください．練習した際の計測データは不要ですので廃棄してください．</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">理解したので練習・実験を開始します</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 画面のロードが完了したら自動でモーダルを表示する
+        $(window).on('load', function () {
+            $('#staticBackdrop').modal('show');
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
