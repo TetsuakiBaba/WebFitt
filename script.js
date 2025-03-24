@@ -3,13 +3,18 @@
  *******************************************************/
 
 class Task {
-    constructor(A, W, n, t) {
+    constructor(A, W, n, t, cn) {
         this.A = A;     // 振幅(ピクセル)
         this.W = W;     // ターゲット幅(ピクセル)
         this.n = n;     // ターゲット数
         this.t = t;     // 周回数(何周分クリックするか)
     }
 }
+
+let n_condition = 1;
+var condition_codes = [];
+let current_condition = 1;
+
 
 class Pos {
     constructor(x, y) {
@@ -66,8 +71,31 @@ let overallMeanResultHeader = [
     "Mean Completion Time (ms)", "Mean Click Error (%)", "Mean Throughput (bps)"
 ];
 
+function getParameters() {
+
+    if (condition_codes.length > 0) {
+        let as = condition_codes.map(item => item.amplitude).join(",");
+        let ws = condition_codes.map(item => item.width).join(",");
+        let n = document.getElementById("number-of-targets").value;
+        let t = document.getElementById("number-of-trials").value;
+        condition_codes.shift();
+        console.log(condition_codes);
+        return {
+            as: as,
+            ws: ws,
+            n: n,
+            t: t,
+        }
+    }
+}
+
+
 $(document).ready(function () {
     $("#main_menu").hide();
+
+    // condition codeのoption数を取得
+    n_condition = $("#condition-code option").length;
+
 
     // サーバー保存設定の取得
     if ($("#webfitt-meta").data()["servdown"] == "True") {
@@ -179,6 +207,8 @@ $(document).ready(function () {
         }
     });
 
+
+
     // Start Test ボタン押下時の処理
     $(document).on("click", "#start-test-btn", function () {
         participantCode = $("#participant-code").val();
@@ -188,10 +218,11 @@ $(document).ready(function () {
         pointingDevice = $("input[name='pointing-device']:checked").val();
         deviceExperience = $("input[name='device-experience']:checked").val();
 
-        var A_raw = $("#amplitude").val();
-        var W_raw = $("#width").val();
-        var n = parseInt($("#number-of-targets").val());
-        var t = parseInt($("#number-of-trials").val()); // ★追加: 周回数を取得
+        let ps = getParameters();
+        var A_raw = document.getElementById("amplitude").value;
+        var W_raw = document.getElementById("width").value;
+        var n = document.getElementById("number-of-targets").value;
+        var t = document.getElementById("number-of-trials").value;
 
         var policy = false;
         if ($("#policy").is(":checked")) {
@@ -199,6 +230,7 @@ $(document).ready(function () {
         }
         var A = A_raw.replace(" ", '').split(",");
         var W = W_raw.replace(" ", '').split(",");
+
 
         var correctFlag = true;
         var errorMsg = "";
@@ -258,6 +290,9 @@ $(document).ready(function () {
             $("#main_menu").hide();
             // 実験開始
             beginApp(A, W, n, t);
+
+            // beginApp(["100", "200"], ["50", "100"], 5, 2);
+
         } else {
             alert(errorMsg);
         }
@@ -324,6 +359,8 @@ function beginApp(a_list, w_list, n, t) {
         isTaskRunning = true;
         $("#header_logo").show();
     }
+
+    current_condition++;
 }
 
 // p5.js のプリロード
