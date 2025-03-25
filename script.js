@@ -168,11 +168,12 @@ $(document).ready(function () {
     $(document).on("click", "#confirm_calibration_btn", function () {
         setCalibrationValue();
         if (getCookie("webfitt-calibration") == "") {
-            $('#calibration-modal').modal('show');
+            // $('#calibration-modal').modal('show');
         } else {
             setCalibrationCookie(calibrationScale);
-            $('#calibrated-modal').modal('show');
+            // $('#calibrated-modal').modal('show');
         }
+        endCalibration();
     });
 
     // ヘッダーロゴクリックでリロード
